@@ -15,9 +15,28 @@
     <security:http security="none" pattern="/logout.jsp"/>
     <security:http security="none" pattern="/favicon.ico"/>
 
+    <security:global-method-security pre-post-annotations="enabled">
+        <security:expression-handler ref="expressionHandler"/>
+    </security:global-method-security>
+
+    <bean id="expressionHandler" class="org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler">
+        <property name="permissionEvaluator" ref="permissionEvaluator"/>
+    </bean>
+
+    <bean id="permissionEvaluator" class="br.com.neppo.spring.security.xacml.WSO2PermissionEvaluator">
+        <constructor-arg ref="wsAuthenticator"/>
+    </bean>
+
+    <bean id="wsAuthenticator" class="br.com.neppo.wsclient.authenticator.WSAuthenticator">
+        <constructor-arg type="java.lang.String" value="admin"/>
+        <constructor-arg type="java.lang.String" value="admin"/>
+    </bean>
+
+    <bean id="testService" class="org.springframework.security.service.SampleService" />
+
     <!-- Secured pages -->
-    <security:http entry-point-ref="samlEntryPoint">
-        <security:intercept-url pattern="/**" access="IS_AUTHENTICATED_FULLY"/>
+    <security:http entry-point-ref="samlEntryPoint" use-expressions="true">
+        <security:intercept-url pattern="/**" access="isFullyAuthenticated()"/>
         <security:custom-filter before="FIRST" ref="metadataGeneratorFilter"/>
         <security:custom-filter after="BASIC_AUTH_FILTER" ref="samlFilter"/>
     </security:http>
@@ -88,7 +107,24 @@
     <!-- Filter automatically generates default SP metadata -->
     <bean id="metadataGeneratorFilter" class="org.springframework.security.saml.metadata.MetadataGeneratorFilter">
         <constructor-arg>
-            <bean class="org.springframework.security.saml.metadata.MetadataGenerator"/>
+            <bean class="org.springframework.security.saml.metadata.MetadataGenerator">
+                <property name="entityId" value="marcos"/>
+                <property name="signMetadata" value="false"/>
+                <property name="bindingsSSO">
+                    <list>
+                        <value>POST</value>
+                    </list>
+                </property>
+                <property name="bindingsSLO">
+                    <list>
+                        <value>redirect</value>
+                    </list>
+                </property>
+                <property name="bindingsHoKSSO">
+                    <list/>
+                </property>
+                <property name="wantAssertionSigned" value="false"/>
+            </bean>
         </constructor-arg>
     </bean>
 
@@ -105,6 +141,20 @@
                         <bean class="org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider">
                             <constructor-arg>
                                 <value type="java.io.File">classpath:security/idp.xml</value>
+                            </constructor-arg>
+                            <property name="parserPool" ref="parserPool"/>
+                        </bean>
+                    </constructor-arg>
+                    <constructor-arg>
+                        <bean class="org.springframework.security.saml.metadata.ExtendedMetadata">
+                        </bean>
+                    </constructor-arg>
+                </bean>
+                <bean class="org.springframework.security.saml.metadata.ExtendedMetadataDelegate">
+                    <constructor-arg>
+                        <bean class="org.opensaml.saml2.metadata.provider.FilesystemMetadataProvider">
+                            <constructor-arg>
+                                <value type="java.io.File">classpath:security/wso2_idp.xml</value>
                             </constructor-arg>
                             <property name="parserPool" ref="parserPool"/>
                         </bean>
@@ -136,10 +186,12 @@
     <!-- SAML Authentication Provider responsible for validating of received SAML messages -->
     <bean id="samlAuthenticationProvider" class="org.springframework.security.saml.SAMLAuthenticationProvider">
         <!-- OPTIONAL property: can be used to store/load user data after login -->
-        <!--
-        <property name="userDetails" ref="bean" />
-        -->
+
+        <property name="userDetails" ref="testUserDetails" />
+
     </bean>
+
+    <bean id="testUserDetails" class="org.springframework.security.service.WSO2UserDetailsService"/>
 
     <!-- Provider of default SAML Context -->
     <bean id="contextProvider" class="org.springframework.security.saml.context.SAMLContextProviderImpl"/>

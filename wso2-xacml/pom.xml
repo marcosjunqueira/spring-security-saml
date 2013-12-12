@@ -1,0 +1,85 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.springframework.security.extensions</groupId>
+    <artifactId>spring-security-wso2-xacml</artifactId>
+    <version>1.0.0.RC3-SNAPSHOT</version>
+    <packaging>jar</packaging>
+
+    <name>Spring Security SAML v2 XACML WSO2 WSClient</name>
+    <description>Spring Security SAML v2 XACML WSO2 WSClient</description>
+
+    <url>https://github.com/marcosjunqueira/spring-security-saml</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>jaxws-maven-plugin</artifactId>
+                <version>1.10</version>
+                <configuration>
+                    <bindingFiles>
+                        <bindingFile>${basedir}/src/main/jaxb/jaxb-bindings.xml</bindingFile>
+                    </bindingFiles>
+                </configuration>
+                <executions>
+                    <!--Criar um execution para cada classe de webservice.-->
+                    <execution>
+                        <id>generate-stubs</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <!--<destDir>target/jaxws/classes</destDir>-->
+                            <sourceDestDir>target/generated-sources/wsclient</sourceDestDir>
+                            <!--<packageName>br.com.neppo.identity.wsclient</packageName>-->
+                            <wsdlDirectory>src/main/wsdl</wsdlDirectory>
+                            <wsdlFiles>
+                                <!--Criar uma linha com o wsdl para cada webservice.-->
+                                <!--                                <wsdlFile>EntitlementAdminService.wsdl</wsdlFile>
+                                <wsdlFile>EntitlementPolicyAdminService.wsdl</wsdlFile>-->
+                                <wsdlFile>EntitlementService.wsdl</wsdlFile>
+                            </wsdlFiles>
+                            <!-- *** you need the next line to set the wsdlLocation in the generated stubs *** -->
+                            <!--<wsdlLocation>${wsdlLocation}</wsdlLocation>-->
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <!--                    <dependency>
+                        <groupId>jboss</groupId>
+                        <artifactId>jboss-annotations-ejb3</artifactId>
+                        <version>4.2.3.GA</version>
+                    </dependency>
+                                        <dependency>
+                        <groupId>javax</groupId>
+                        <artifactId>javaee-api</artifactId>
+                        <version>6.0</version>
+                    </dependency>
+                    Por algum motimo não executa o wsgen com a javaee-api.
+                    <dependency>
+                        <groupId>javax.persistence</groupId>
+                        <artifactId>persistence-api</artifactId>
+                        <version>1.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>javax.ejb</groupId>
+                        <artifactId>ejb-api</artifactId>
+                        <version>3.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>javax.jws</groupId>
+                        <artifactId>jsr181-api</artifactId>
+                        <version>1.0-MR1</version>
+                    </dependency>-->
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+</project>

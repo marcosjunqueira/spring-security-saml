@@ -1,4 +1,7 @@
 include "saml2-core"
+//include "wso2-xacml"
+//include "saml2-xacml"
+//TODO configure gradle
 include "saml2-sample"
 
 rootProject.name = "spring-security-saml"

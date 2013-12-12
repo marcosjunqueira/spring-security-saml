@@ -24,6 +24,10 @@
         <servlet-name>saml</servlet-name>
         <url-pattern>/saml/web/*</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>saml</servlet-name>
+        <url-pattern>/web/*</url-pattern>
+    </servlet-mapping>
 
     <filter>
         <filter-name>springSecurityFilterChain</filter-name>
